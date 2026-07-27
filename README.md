@@ -174,6 +174,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 [MIT](LICENSE).
 
+## Acknowledgments
+
+Special thanks to ZhuHeng 朱恒 <zhuheng0627@qq.com> for verification.
+
 ## Implementation notes
 
 - The tongue's fill/stroke color is set via the `.tongue-shape` CSS class,
