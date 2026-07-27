@@ -78,7 +78,9 @@ coordinates from a similar articulation, nudge them by eye, then rebuild
 
 ## Running locally
 
-Requires Node.js. The app is built as real browser ES modules
+Requires Node.js **^22.22.0 or >=24.8.0** (see `engines` in `package.json`) —
+`html-validate` won't run on older versions, so `npm install` will warn (and
+CI will fail) below that. The app is built as real browser ES modules
 (`<script type="module">`), so double-clicking the HTML file (`file://`)
 won't work — browsers block module scripts under CORS for `file://`. You
 need a local server:

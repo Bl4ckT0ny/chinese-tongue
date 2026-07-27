@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "description": "Interactive sagittal-section diagram of tongue placement for Mandarin initials and finals",
   "type": "module",
+  "engines": {
+    "node": "^22.22.0 || >=24.8.0"
+  },
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.tests.json",
