@@ -1,0 +1,26 @@
+{
+  "name": "chinese-tongue-placement",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Interactive sagittal-section diagram of tongue placement for Mandarin initials and finals",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.tests.json",
+    "lint:ts": "eslint src/**/*.ts tests/e2e/**/*.ts playwright.config.ts",
+    "lint:html": "html-validate *.html",
+    "lint": "npm run typecheck && npm run lint:ts && npm run lint:html",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "test:e2e": "playwright test",
+    "test": "npm run build && npm run test:unit && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.56.0",
+    "@types/node": "^26.1.1",
+    "eslint": "^10.7.0",
+    "html-validate": "^11.5.6",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0"
+  }
+}
