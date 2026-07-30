@@ -84,8 +84,10 @@ export function mount(data: AppData): void {
             <text class="anat-label" x="97" y="30">${data.ui.labels.nasalCavity}</text>
 
             <line class="anat-line" x1="312" y1="103" x2="430" y2="34"/>
-            <text class="anat-label" x="432" y="30">${data.ui.labels.softPalate}</text>
-            <text class="anat-label" x="432" y="47" style="font-size:11px;opacity:.75">${data.ui.labels.velumSub}</text>
+            <text class="anat-label" x="432" y="30">
+              <tspan x="432" dy="0">${data.ui.labels.softPalate}</tspan>
+              <tspan x="432" dy="17" style="font-size:11px;opacity:.75">${data.ui.labels.velumSub}</tspan>
+            </text>
 
             <line class="anat-line" x1="122" y1="116" x2="70" y2="66"/>
             <text class="anat-label" x="30" y="62">${data.ui.labels.alveolarRidge}</text>
