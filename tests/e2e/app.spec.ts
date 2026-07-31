@@ -1,21 +1,20 @@
 import { test, expect, type Page } from '@playwright/test';
 
 const PAGES = [
-  { url: 'ru.html', initialsCount: 6, finalsCount: 3 },
-  { url: 'en.html', initialsCount: 6, finalsCount: 3 }
+  { url: 'ru.html', locale: 'ru', initialsCount: 6, finalsCount: 3 },
+  { url: 'en.html', locale: 'en', initialsCount: 6, finalsCount: 3 }
 ];
 
 async function clickEveryButtonInCurrentTab(page: Page) {
   const count = await page.locator('.group-btn').count();
   for (let i = 0; i < count; i++) {
     await page.locator('.group-btn').nth(i).click();
-    // wait for the 400ms tongue animation to finish rather than a fixed sleep
     await expect(page.locator('#tongue')).not.toHaveAttribute('d', '');
     await page.waitForTimeout(450);
   }
 }
 
-for (const { url, initialsCount, finalsCount } of PAGES) {
+for (const { url, locale, initialsCount, finalsCount } of PAGES) {
   test.describe(url, () => {
     test('loads with no console/page errors', async ({ page }) => {
       const errors: string[] = [];
@@ -37,8 +36,6 @@ for (const { url, initialsCount, finalsCount } of PAGES) {
     });
 
     test('the tongue shape is colored via CSS class, never inline fill/stroke (Safari regression)', async ({ page }) => {
-      // A real bug: fill="var(--tongue)" as an XML attribute doesn't resolve
-      // reliably in Safari. The color must come from the .tongue-shape class.
       await page.goto(url);
       const tongue = page.locator('#tongue');
       await expect(tongue).toHaveClass(/tongue-shape/);
@@ -83,9 +80,6 @@ for (const { url, initialsCount, finalsCount } of PAGES) {
     });
 
     test('anatomy labels never overlap, at both wide and narrow viewport widths', async ({ page }) => {
-      // Regression test: automates the getBBox collision check that was
-      // previously done by hand after labels were found overlapping on
-      // small screens.
       for (const width of [320, 700, 1080]) {
         await page.setViewportSize({ width, height: 800 });
         await page.goto(url);
@@ -112,5 +106,50 @@ for (const { url, initialsCount, finalsCount } of PAGES) {
         }
       }
     });
+
+    test('lips, teeth, and pharynx use readable callouts instead of sitting on anatomy lines', async ({ page }) => {
+      for (const width of [320, 700, 1080]) {
+        await page.setViewportSize({ width, height: 800 });
+        await page.goto(url);
+
+        for (const id of ['lips', 'teeth', 'pharynx']) {
+          const geometry = await page.evaluate((labelId) => {
+            const label = document.querySelector(`[data-anatomy-label="${labelId}"]`) as SVGGraphicsElement | null;
+            const leader = document.querySelector(`[data-anatomy-leader="${labelId}"]`) as SVGLineElement | null;
+            if (!label || !leader) return null;
+
+            const box = label.getBBox();
+            const x2 = Number(leader.getAttribute('x2'));
+            const y2 = Number(leader.getAttribute('y2'));
+            const insideLabel =
+              x2 >= box.x && x2 <= box.x + box.width &&
+              y2 >= box.y && y2 <= box.y + box.height;
+            const dx = x2 < box.x ? box.x - x2 : x2 > box.x + box.width ? x2 - (box.x + box.width) : 0;
+            const dy = y2 < box.y ? box.y - y2 : y2 > box.y + box.height ? y2 - (box.y + box.height) : 0;
+            return { text: label.textContent?.trim(), insideLabel, distance: Math.hypot(dx, dy) };
+          }, id);
+
+          expect(geometry, `${id} must have a label and a leader at width=${width}`).not.toBeNull();
+          expect(geometry?.text, `${id} label must contain localized text`).toBeTruthy();
+          expect(geometry?.insideLabel, `${id} leader must not run through its label at width=${width}`).toBe(false);
+          expect(geometry?.distance, `${id} leader must terminate close to its label at width=${width}`).toBeLessThanOrEqual(24);
+        }
+      }
+    });
+
+    for (const width of [320, 1080]) {
+      test(`capture review render: ${locale} anatomy diagram at ${width}px`, async ({ page }, testInfo) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(url);
+        await page.waitForTimeout(500);
+
+        await page.locator('.diagram-card').screenshot({
+          path: testInfo.outputPath(`${locale}-anatomy-${width}.png`),
+          animations: 'disabled',
+          caret: 'hide',
+          scale: 'css'
+        });
+      });
+    }
   });
 }

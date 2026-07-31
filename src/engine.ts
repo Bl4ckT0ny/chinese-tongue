@@ -78,8 +78,7 @@ export function mount(data: AppData): void {
               <circle class="marker-dot" r="3.2"/>
             </g>
 
-            <!-- anatomy labels: two staggered rows, verified collision-free via getBBox
-                 (see README.md before moving these) -->
+            <!-- anatomy labels: staggered callouts, verified collision-free via getBBox -->
             <line class="anat-line" x1="150" y1="82" x2="150" y2="36"/>
             <text class="anat-label" x="97" y="30">${data.ui.labels.nasalCavity}</text>
 
@@ -95,9 +94,14 @@ export function mount(data: AppData): void {
             <line class="anat-line" x1="222" y1="90" x2="222" y2="66"/>
             <text class="anat-label" x="196" y="62">${data.ui.labels.hardPalate}</text>
 
-            <text class="anat-label" x="58" y="270">${data.ui.labels.lips}</text>
-            <text class="anat-label" x="115" y="270">${data.ui.labels.teeth}</text>
-            <text class="anat-label" x="368" y="340">${data.ui.labels.pharynx}</text>
+            <line class="anat-line" data-anatomy-leader="lips" x1="66" y1="228" x2="42" y2="286"/>
+            <text class="anat-label" data-anatomy-label="lips" x="18" y="304">${data.ui.labels.lips}</text>
+
+            <line class="anat-line" data-anatomy-leader="teeth" x1="108" y1="218" x2="72" y2="184"/>
+            <text class="anat-label" data-anatomy-label="teeth" x="18" y="178">${data.ui.labels.teeth}</text>
+
+            <line class="anat-line" data-anatomy-leader="pharynx" x1="392" y1="286" x2="470" y2="322"/>
+            <text class="anat-label" data-anatomy-label="pharynx" x="478" y="328">${data.ui.labels.pharynx}</text>
           </svg>
 
           <div class="legend">
