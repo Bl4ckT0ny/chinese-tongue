@@ -1,176 +1,156 @@
 # Mandarin Tongue Placement Diagram
 
-*[Читать на русском](README.ru.md)*
+*[Русская версия](README.ru.md) · [简体中文](README.zh-CN.md)*
 
-An interactive sagittal (side) cross-section of the mouth, showing where the
-tongue goes for Mandarin initials (consonants) and finals (endings).
-Available in Russian (`ru.html`) and English (`en.html`). Written in
-TypeScript.
+An interactive midsagittal view of the vocal tract that shows tongue placement, places of articulation, and velum position for selected Mandarin initials, nasal codas, and erhua.
+
+Available in three languages:
+
+- English: `en.html`
+- Russian: `ru.html`
+- Simplified Chinese: `zh-CN.html`
+
+The project is written in TypeScript. User-facing copy and pronunciation guidance live in language-specific data files, while rendering and geometry are shared across all versions.
 
 ## Repository structure
 
-```
-index.html              → redirects to ru.html (repo-root entry for GitHub Pages)
-ru.html                 → Russian page (thin HTML shell)
-en.html                 → English page (thin HTML shell)
+```text
+index.html                 → GitHub Pages entry point; redirects to the Russian page
+ru.html                    → Russian page
+en.html                    → English page
+zh-CN.html                 → Simplified Chinese page
 assets/
-  style.css              → shared styles (identical for both languages)
+  style.css                → shared styles
 src/
-  types.ts               → shared types: Point, SoundGroup, AppData, etc.
-  geometry.ts             → pure tongue/velum geometry functions (no DOM)
-  engine.ts               → rendering + animation; takes AppData as a parameter, no text inside
-  data.ru.ts               → all Russian text + sound coordinates, typed as AppData
-  data.en.ts               → the same in English
-  main.ru.ts / main.en.ts   → entry points, just call mount(data)
+  types.ts                 → shared Point, SoundGroup, and AppData types
+  geometry.ts              → tongue and velum geometry; no DOM dependencies
+  engine.ts                → rendering and animation; contains no user-facing copy
+  data.ru.ts               → Russian interface and pronunciation data
+  data.en.ts               → English interface and pronunciation data
+  data.zh-CN.ts            → Simplified Chinese interface and pronunciation data
+  main.ru.ts               → Russian entry point
+  main.en.ts               → English entry point
+  main.zh-CN.ts            → Simplified Chinese entry point
 tests/
-  unit/
-    geometry.test.mjs       → geometry tests (node --test, no browser)
-    data.test.mjs            → ru/en data-consistency tests
-  e2e/
-    app.spec.ts               → Playwright: real browser, both languages, every sound
-dist/                     → compiled JS (built from src/, not committed)
-.github/workflows/
-  lint.yml                 → typecheck + ESLint + html-validate on every push/PR
-  test.yml                  → unit + e2e tests on every push/PR
-  deploy.yml                 → build + unit tests + deploy to GitHub Pages on push to main
-tsconfig.json               → build config for src/
-tsconfig.tests.json          → separate config for type-checking tests/e2e
-playwright.config.ts
-eslint.config.js
-.htmlvalidate.json
-package.json
-CONTRIBUTING.md
-LICENSE
+  unit/                    → geometry and data-consistency tests
+  e2e/                     → Playwright browser tests
+dist/                      → compiled JavaScript; not committed
+.github/workflows/         → lint, test, and GitHub Pages workflows
 ```
 
-`engine.ts` contains no user-facing text at all — everything lives in
-`data.ru.ts` / `data.en.ts` and is typed against the `AppData` interface in
-`types.ts`. If one language file gains a new field and the other doesn't,
-TypeScript will refuse to build until you fix both.
+`engine.ts` contains no user-facing text. Each locale supplies an `AppData` object from its own `data.*.ts` file, and TypeScript checks that every file follows the same structure.
 
-## Adding or editing a sound
+## Pronunciation terminology
 
-Each entry in `initials` / `finals` (in `data.*.ts`) is an object:
+The English version uses standard phonetic terminology where it helps, while keeping explanations accessible to learners:
+
+- bilabial and labiodental sounds
+- alveolar consonants
+- dental sibilants
+- retroflex consonants
+- alveolo-palatal consonants
+- velar consonants
+- alveolar and velar nasal codas
+- erhua (rhotacization)
+
+The interface distinguishes Pinyin spelling from the actual articulatory gesture. For example, `j/q/x` are described as alveolo-palatal rather than equated with similarly spelled English consonants.
+
+## Adding or editing a sound group
+
+Each item in `initials` or `finals` follows this structure:
 
 ```ts
 {
   id: 'alveolar',
   pinyin: 'd · t · n · l',
   name: 'Alveolar',
-  marker: { x: 133, y: 138 },   // where the amber contact-point dot sits
-  noContact: false,              // true → dot becomes a dashed ring (no closure, like -r)
-  velum: true,                    // true → soft palate opens (nasal sounds: -n, -ng)
-  top: [                           // exactly 6 points: [tip, blade, frontDorsum, midDorsum, backDorsum, root]
+  marker: { x: 133, y: 138 },
+  noContact: false,
+  velum: false,
+  top: [
     { x: 131, y: 143 }, { x: 172, y: 203 }, { x: 210, y: 249 },
     { x: 252, y: 272 }, { x: 296, y: 287 }, { x: 338, y: 298 }
   ],
-  title: '...',
-  body: '...',                     // <b>...</b> is allowed
-  example: 'pīnyīn → 汉字 "translation"'
+  title: 'Tongue tip at the alveolar ridge',
+  body: '...',
+  example: 'nǐ hǎo → 你好 “hello”'
 }
 ```
 
-Coordinates are in the SVG `viewBox="0 0 640 440"` system. If `top` doesn't
-have exactly 6 points, TypeScript will refuse to build — `TongueTop` is a
-fixed-length tuple type. The easiest way to add a sound is to copy the
-coordinates from a similar articulation, nudge them by eye, then rebuild
-(`npm run build`) and check in a browser — the build takes under a second.
+Coordinates use the SVG `viewBox="0 0 640 440"` coordinate system. `top` must contain exactly six points, representing the tip, blade, front dorsum, mid dorsum, back dorsum, and root of the tongue.
+
+When changing the structure or geometry for one locale, check the other language files as well. Sound-group IDs, coordinates, contact state, and velum state should remain consistent unless the underlying articulation genuinely differs.
 
 ## Running locally
 
-Requires Node.js **^22.22.0 or >=24.8.0** (see `engines` in `package.json`) —
-`html-validate` won't run on older versions, so `npm install` will warn (and
-CI will fail) below that. The app is built as real browser ES modules
-(`<script type="module">`), so double-clicking the HTML file (`file://`)
-won't work — browsers block module scripts under CORS for `file://`. You
-need a local server:
+Requires Node.js **^22.22.0 or >=24.8.0**.
 
 ```bash
 npm install
-npm run build          # compiles src/*.ts → dist/*.js
+npm run build
 python3 -m http.server 8000
-# then open http://localhost:8000/ru.html
 ```
 
-While editing, it's convenient to keep the compiler watching:
+Then open one of the language pages, for example:
+
+```text
+http://localhost:8000/en.html
+```
+
+The pages use browser ES modules, so they must be served over HTTP rather than opened directly with `file://`.
+
+For continuous compilation during development:
 
 ```bash
 npx tsc --watch
 ```
 
-## Checks (types + linters)
+## Checks
 
 ```bash
-npm run typecheck   # tsc --noEmit
-npm run lint:ts      # ESLint over src/**/*.ts
-npm run lint:html    # html-validate over *.html
-npm run lint          # all of the above
+npm run typecheck
+npm run lint:ts
+npm run lint:html
+npm run lint
 ```
 
-The same checks run automatically in GitHub Actions on every push and pull
-request (`.github/workflows/lint.yml`).
+The same checks run in GitHub Actions for every push and pull request.
 
 ## Tests
 
-Two layers, both of which actually run in this repository:
-
 ```bash
-npm run build          # tests need a built dist/
-npm run test:unit       # node --test — tongue geometry + ru/en data consistency
-npx playwright install --with-deps chromium   # once, for e2e
-npm run test:e2e         # Playwright — real browser, both languages, all 9 sounds
-npm test                  # build + unit + e2e in one command
+npm run build
+npm run test:unit
+npx playwright install --with-deps chromium
+npm run test:e2e
+npm test
 ```
 
-**Unit tests** (`tests/unit/`, no browser):
-- `geometry.test.mjs` — that `tongueD`/`velumD` build a well-formed path;
-  includes a dedicated regression test for a "tongue thickness inverts into
-  a self-crossing loop" bug that was found and fixed during development —
-  now locked down against several real point configurations.
-- `data.test.mjs` — that `data.ru.ts` and `data.en.ts` never drift apart in
-  which sounds they cover, that `top` always has exactly 6 in-bounds points,
-  and that the underlying phonetics are encoded correctly: `-n` shares tongue
-  placement with `d/t/n/l`, `-ng` with `g/k/h`, `-r` has no contact and no
-  nasalization, and no initial opens the velum.
-
-**E2E tests** (`tests/e2e/app.spec.ts`, Playwright, real Chromium):
-- the page loads with no console errors, in both languages
-- clicking every one of the 6 initials and 3 finals never throws a JS error
-  and always leaves a non-empty tongue path
-- the tongue's color comes from the `.tongue-shape` CSS class, never an
-  inline attribute — a direct regression test for a real Safari bug (CSS
-  custom properties don't reliably resolve in SVG presentation attributes)
-- `-n`/`-ng` turn on the dashed nasal-airflow line, other sounds don't
-- anatomy labels never overlap at any of three screen widths (320/700/1080px)
-  — an automated version of a `getBBox()` check that was previously done by
-  hand after labels were found overlapping on small screens
-
-The same run (`build` → `test:unit` → install browser → `test:e2e`) executes
-in GitHub Actions on every push/PR (`.github/workflows/test.yml`). Deploy
-(`deploy.yml`) additionally runs `test:unit` as a fast gate before publishing
-(no e2e there, to avoid slowing the deploy down with a browser install).
+Unit tests cover tongue geometry, coordinate bounds, cross-language data consistency, and key articulation properties such as nasal velum state and shared tongue positions. Playwright tests exercise the pages in Chromium, click through every sound group, verify nasal-airflow behavior, and check the anatomy-label layout at several viewport widths.
 
 ## Deploying to GitHub Pages
 
-Deployment is fully automatic via `.github/workflows/deploy.yml`: on every
-push to `main` it installs dependencies, type-checks, runs unit tests,
-builds the TypeScript (`npm run build`), and publishes via the official
-`actions/upload-pages-artifact` + `actions/deploy-pages`.
+Pushes to `main` trigger `.github/workflows/deploy.yml`, which installs dependencies, type-checks the project, runs unit tests, builds the TypeScript sources, and publishes the site through GitHub Pages.
 
-One-time setup:
+For the initial setup, select:
 
-1. Push the repository to `main` on GitHub
-2. Settings → Pages → Source → select **GitHub Actions** (not "Deploy from a
-   branch" — the build now happens in CI, `dist/` isn't committed)
-3. After the first workflow run, the site will be live at
-   `https://<your-username>.github.io/<repo>/`
-4. That link is safe to share anywhere, including Telegram — it's a real web
-   page, not a file, so JS and interactivity work in mobile browsers
-   (including Telegram's in-app browser).
+```text
+Settings → Pages → Source → GitHub Actions
+```
+
+The deployed language pages are available at paths such as:
+
+```text
+https://<username>.github.io/<repository>/en.html
+https://<username>.github.io/<repository>/ru.html
+https://<username>.github.io/<repository>/zh-CN.html
+```
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+When editing pronunciation terminology, prefer established phonetic usage and clear learner-facing explanations over literal translation from another locale.
 
 ## License
 
@@ -178,22 +158,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Acknowledgments
 
-Special thanks to ZhuHeng 朱恒 <zhuheng0627@qq.com> for verification.
-
-## Implementation notes
-
-- The tongue's fill/stroke color is set via the `.tongue-shape` CSS class,
-  not inline attributes like `fill="var(--tongue)"` — CSS custom properties
-  don't reliably resolve in SVG presentation attributes on some Safari
-  versions, which made the tongue invisible. If you add new SVG elements
-  that use a palette color, style them the same way — through a class, not
-  an attribute.
-- Anatomy labels in the SVG are deliberately staggered across two rows (see
-  the comment in `engine.ts`) — the spacing was verified with `getBBox()` so
-  the text never overlaps at any screen size. Check the same thing if you
-  add new labels.
-- The tongue's underside shape in `geometry.ts` is computed relative to the
-  top points (`tip.y + 36`, etc.), not fixed coordinates — this guarantees
-  the tongue's thickness can never "invert" into a self-crossing loop at
-  extreme positions (verified by rendering all 9 sounds, and locked down by
-  `tests/unit/geometry.test.mjs`).
+Special thanks to ZhuHeng 朱恒 `<zhuheng0627@qq.com>` for reviewing the project content.
