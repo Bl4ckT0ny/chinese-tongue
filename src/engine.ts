@@ -78,30 +78,30 @@ export function mount(data: AppData): void {
               <circle class="marker-dot" r="3.2"/>
             </g>
 
-            <!-- anatomy labels: staggered callouts, verified collision-free via getBBox -->
-            <line class="anat-line" x1="150" y1="82" x2="150" y2="36"/>
-            <text class="anat-label" x="97" y="30">${data.ui.labels.nasalCavity}</text>
+            <!-- anatomy labels are centered on the endpoints of their callouts -->
+            <line class="anat-line" x1="150" y1="82" x2="162" y2="34"/>
+            <text class="anat-label" x="162" y="28" text-anchor="middle">${data.ui.labels.nasalCavity}</text>
 
-            <line class="anat-line" x1="312" y1="103" x2="430" y2="34"/>
-            <text class="anat-label" x="432" y="30">
-              <tspan x="432" dy="0">${data.ui.labels.softPalate}</tspan>
-              <tspan x="432" dy="17" style="font-size:11px;opacity:.75">${data.ui.labels.velumSub}</tspan>
+            <line class="anat-line" x1="312" y1="103" x2="430" y2="60"/>
+            <text class="anat-label" x="430" y="30" text-anchor="middle">
+              <tspan x="430" dy="0">${data.ui.labels.softPalate}</tspan>
+              <tspan x="430" dy="17" style="font-size:11px;opacity:.75">${data.ui.labels.velumSub}</tspan>
             </text>
 
-            <line class="anat-line" x1="122" y1="116" x2="70" y2="66"/>
-            <text class="anat-label" x="30" y="62">${data.ui.labels.alveolarRidge}</text>
+            <line class="anat-line" x1="122" y1="116" x2="66" y2="62"/>
+            <text class="anat-label" x="66" y="56" text-anchor="middle">${data.ui.labels.alveolarRidge}</text>
 
             <line class="anat-line" x1="222" y1="90" x2="222" y2="66"/>
-            <text class="anat-label" x="196" y="62">${data.ui.labels.hardPalate}</text>
+            <text class="anat-label" x="222" y="62" text-anchor="middle">${data.ui.labels.hardPalate}</text>
+
+            <line class="anat-line" data-anatomy-leader="teeth" x1="108" y1="150" x2="76" y2="132"/>
+            <text class="anat-label" data-anatomy-label="teeth" x="66" y="126" text-anchor="middle">${data.ui.labels.teeth}</text>
 
             <line class="anat-line" data-anatomy-leader="lips" x1="66" y1="228" x2="42" y2="286"/>
-            <text class="anat-label" data-anatomy-label="lips" x="18" y="304">${data.ui.labels.lips}</text>
+            <text class="anat-label" data-anatomy-label="lips" x="42" y="304" text-anchor="middle">${data.ui.labels.lips}</text>
 
-            <line class="anat-line" data-anatomy-leader="teeth" x1="108" y1="218" x2="72" y2="184"/>
-            <text class="anat-label" data-anatomy-label="teeth" x="18" y="178">${data.ui.labels.teeth}</text>
-
-            <line class="anat-line" data-anatomy-leader="pharynx" x1="392" y1="286" x2="470" y2="322"/>
-            <text class="anat-label" data-anatomy-label="pharynx" x="478" y="328">${data.ui.labels.pharynx}</text>
+            <line class="anat-line" data-anatomy-leader="pharynx" x1="392" y1="286" x2="470" y2="304"/>
+            <text class="anat-label" data-anatomy-label="pharynx" x="470" y="328" text-anchor="middle">${data.ui.labels.pharynx}</text>
           </svg>
 
           <div class="legend">
