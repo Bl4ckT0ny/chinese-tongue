@@ -2,7 +2,8 @@ import { test, expect, type Page } from '@playwright/test';
 
 const PAGES = [
   { url: 'ru.html', locale: 'ru', initialsCount: 6, finalsCount: 3 },
-  { url: 'en.html', locale: 'en', initialsCount: 6, finalsCount: 3 }
+  { url: 'en.html', locale: 'en', initialsCount: 6, finalsCount: 3 },
+  { url: 'zh-CN.html', locale: 'zh-CN', initialsCount: 6, finalsCount: 3 }
 ];
 
 async function clickEveryButtonInCurrentTab(page: Page) {

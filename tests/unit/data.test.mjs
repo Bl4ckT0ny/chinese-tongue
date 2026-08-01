@@ -4,8 +4,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import ru from '../../dist/data.ru.js';
 import en from '../../dist/data.en.js';
+import zhCN from '../../dist/data.zh-CN.js';
 
 const VIEWBOX = { width: 640, height: 440 };
+const LOCALES = [
+  ['ru', ru],
+  ['en', en],
+  ['zh-CN', zhCN]
+];
 
 function ids(list) {
   return list.map((g) => g.id).sort();
@@ -18,15 +24,17 @@ function assertPointInBounds(p, label) {
   assert.ok(p.y >= 0 && p.y <= VIEWBOX.height, `${label}.y (${p.y}) out of viewBox 0..${VIEWBOX.height}`);
 }
 
-test('ru and en expose the same set of initials ids', () => {
-  assert.deepEqual(ids(ru.initials), ids(en.initials));
-});
+for (const [langName, data] of LOCALES.slice(1)) {
+  test(`ru and ${langName} expose the same set of initials ids`, () => {
+    assert.deepEqual(ids(ru.initials), ids(data.initials));
+  });
 
-test('ru and en expose the same set of finals ids', () => {
-  assert.deepEqual(ids(ru.finals), ids(en.finals));
-});
+  test(`ru and ${langName} expose the same set of finals ids`, () => {
+    assert.deepEqual(ids(ru.finals), ids(data.finals));
+  });
+}
 
-for (const [langName, data] of [['ru', ru], ['en', en]]) {
+for (const [langName, data] of LOCALES) {
   test(`${langName}: every sound has exactly 6 tongue-top points, in bounds`, () => {
     for (const group of [...data.initials, ...data.finals]) {
       assert.equal(group.top.length, 6, `${group.id}.top must have exactly 6 points`);

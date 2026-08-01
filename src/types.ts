@@ -1,6 +1,5 @@
 // Shared types for the tongue-placement diagram.
-// data.ru.ts / data.en.ts must satisfy AppData exactly — if you add a field
-// to one language file, TypeScript will force you to add it to the other too.
+// All data.*.ts language files must satisfy AppData exactly.
 
 export interface Point {
   x: number;
@@ -62,7 +61,7 @@ export interface UiText {
 }
 
 export interface AppData {
-  lang: 'ru' | 'en';
+  lang: 'ru' | 'en' | 'zh-CN';
   meta: { htmlTitle: string };
   ui: UiText;
   initials: SoundGroup[];
