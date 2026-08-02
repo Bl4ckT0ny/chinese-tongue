@@ -23,6 +23,7 @@ export function mount(data: AppData): void {
       <div class="lang-switch">
         <a href="ru.html" class="${data.lang === 'ru' ? 'active' : ''}">RU</a>
         <a href="en.html" class="${data.lang === 'en' ? 'active' : ''}">EN</a>
+        <a href="zh-CN.html" class="${data.lang === 'zh-CN' ? 'active' : ''}">中文</a>
       </div>
       <header>
         <div class="eyebrow">${data.ui.eyebrow}</div>
